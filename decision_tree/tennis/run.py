@@ -12,30 +12,35 @@ class TennisRecord:
 
 
 if __name__ == '__main__':
-    YES = "Yes"
-    NO = "No"
+    print("[S T A R T E D]")
 
-    l0 = {"v": YES}
-    l1 = {"v": YES}
-    l2 = {"v": NO}
-    l3 = {"v": YES}
-    l4 = {"v": NO}
+    def build_tree():
+        YES = "Yes"
+        NO = "No"
 
-    n2 = {"question": lambda val: val.wind == "Weak",
-          "l": l3,
-          "r": l4}
+        l0 = {"v": YES}
+        l1 = {"v": YES}
+        l2 = {"v": NO}
+        l3 = {"v": YES}
+        l4 = {"v": NO}
 
-    n1 = {"question": lambda val: val.humidity == "Normal",
-          "l": l1,
-          "r": l2}
+        n2 = {"question": lambda val: val.wind == "Weak",
+              "l": l3,
+              "r": l4}
 
-    n0 = {"question": lambda val: val.outlook == "Sunny",
-          "l": n1,
-          "r": n2}
+        n1 = {"question": lambda val: val.humidity == "Normal",
+              "l": l1,
+              "r": l2}
 
-    tree = {"question": lambda val: val.outlook == "Overcast",
-            "l": l0,
-            "r": n0}
+        n0 = {"question": lambda val: val.outlook == "Sunny",
+              "l": n1,
+              "r": n2}
+
+        tree = {"question": lambda val: val.outlook == "Overcast",
+                "l": l0,
+                "r": n0}
+
+        return tree
 
     def predict(node, val):
         if "v" in node:
@@ -44,9 +49,10 @@ if __name__ == '__main__':
         return predict(next_node,
                        val)
 
+    tree = build_tree()
     with open("./data/tennis.csv", "r") as csv_file:
         data = csv.reader(csv_file, delimiter=",")
-        data = [r for i, r in enumerate(data) if i != 0]
+        data = [r for i, r in enumerate(data) if i != 0]  # remove header
         known_target = [TennisRecord(int(r[0]), r[1], r[2], r[3], r[4]) for i, r in enumerate(data)]
         predict_target = []
         for r in data:
@@ -59,3 +65,4 @@ if __name__ == '__main__':
                 print(i)
 
         assert known_target == predict_target, "Ops, Something wrong"
+    print("[D O N E]")

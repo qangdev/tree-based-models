@@ -23,12 +23,10 @@ def gini_index(groups, classes):
 # Step 5: Make multiple Prediction
 
 if __name__ == '__main__':
-    print(gini_index([[[1, 1], [1, 0]], [[1, 1], [1, 0]]], [0, 1]))
-    print(gini_index([[[1, 0], [1, 0]], [[1, 1], [1, 1]]], [0, 1]))
+    print(gini_index(groups=[[[1, 1], [1, 0]], [[1, 1], [1, 0]]], classes=[0, 1]))
+    print(gini_index(groups=[[[1, 0], [1, 0]], [[1, 1], [1, 1]]], classes=[0, 1]))
     # Load banknote data set.
 
     # Clean data
 
     # Run steps
-
-    pass
