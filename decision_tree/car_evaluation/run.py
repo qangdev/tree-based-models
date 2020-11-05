@@ -25,12 +25,6 @@ def get_best_feature(features, impurites):
     return features[bindex], impurites[bindex]
 
 
-def counting_orabettername(col_index, target_label, data, i=0):
-    print(col_index, target_label, data, i)
-    val = 1 if data[i][] == target_label and i <= len(data) else 0
-    return val if (i+1) == len(data) else val + counting_orabettername(col_index, target_label, data, i+1)
-
-
 
 if __name__ == '__main__':
     # S T E P  0: Import dataset
@@ -49,11 +43,7 @@ if __name__ == '__main__':
     features = ["buying", "maint", "doors", "persons", "lug_boot"]
     features_values = []
 
-    # features_values.append(counting_orabettername(0, "acc", dataset[:2]))
-    features_values.append(counting_orabettername(0, "unacc", dataset[:2]))
-    print(features_values)
-
-
+  
     # S T E P  3: Calculating Gini Impurity
 
 
