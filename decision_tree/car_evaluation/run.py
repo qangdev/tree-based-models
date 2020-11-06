@@ -31,7 +31,6 @@ if __name__ == '__main__':
     dataset = []
     with open("./data/car.data", "r+") as src:
         dataset = list(csv.reader(src, delimiter=","))
-    print(dataset[:2])
 
     # S T E P  1: Look at data and make question
     
@@ -47,15 +46,15 @@ if __name__ == '__main__':
     # S T E P  3: Calculating Gini Impurity
 
 
-    # chest_pain = [[105, 39], [34, 125]]
-    # good_bcir = [[37, 127], [100, 33]]
-    # blocked_ar = [[92, 31], [45, 129]]
+    chest_pain = [[105, 39], [34, 125]]
+    good_bcir = [[37, 127], [100, 33]]
+    blocked_ar = [[92, 31], [45, 129]]
 
-    # features = ["check_pain", "good_blood_circulation", "blocked_arterise"]
-    # f_data = [chest_pain, good_bcir, blocked_ar]
+    features = ["check_pain", "good_blood_circulation", "blocked_arterise"]
+    f_data = [chest_pain, good_bcir, blocked_ar]
 
-    # imputiry = features_impurity(f_data)
-    # print(imputiry, f_data)
+    imputiry = features_impurity(f_data)
+    print(imputiry)
     # assert imputiry == [0.364, 0.360, 0.381], "Impurity wrong"
     # b_feature, b_index = get_best_feature(features, imputiry)
     # print("Best Feature:> %s with impurity is %s" % (b_feature, b_index))
