@@ -14,7 +14,7 @@ def top_questions(rows):
             if not true_rows or not false_rows:
                 continue
 
-            gain = info_gain(true_rows, false_rows)
+            gain = gini_info_gain(true_rows, false_rows)
             questions.append([question, gain])
     return questions
 
@@ -38,12 +38,17 @@ def set_values(rows):
     return list(zip(range(len(rows)), u_values))
             
 
-def info_gain(true_branch, false_branch):
-    true_p = len(true_branch) / (len(true_branch) + len(false_branch))
-    false_p = len(false_branch) / (len(true_branch) + len(false_branch))
-    gini_true = gini(true_branch)
-    gini_false = gini(false_branch)
-    return round(true_p*gini_true + false_p*gini_false, 3)
+def gini_info_gain(parent_branch, left_branch, right_branch):
+    prob_left = len(left_branch) / (len(left_branch) + len(right_branch))
+    prob_right = len(right_branch) / (len(left_branch) + len(right_branch))
+
+    gini_left = gini(left_branch)
+    gini_right = gini(right_branch)
+
+    # Information Gain = Entropy(parent) - ( (Probability(left) * Entropy(Left)) + Probability(right) * Entropy(Right) )
+    gain = gini(parent_branch) - ( (prob_left*gini_left) + prob_right*gini_right )
+
+    return round(gain, 3)
 
 
 def gini(rows):
@@ -51,7 +56,7 @@ def gini(rows):
     impurity = 1
     for label in counts:
         prob_of_label = counts[label] / len(rows)
-        impurity -= (prob_of_label)**2
+        impurity -= prob_of_label**2
     return round(impurity, 3)
 
 
@@ -91,8 +96,6 @@ if __name__ == "__main__":
     with open("decision_tree/fruits/data/fruits.csv", "r") as src:
         dataset = csv.reader(src, delimiter=",")
         dataset = list(dataset)[1:]
-        # for row in dataset:
-        #     print(row)
         print(top_questions(dataset))
         # Need to find good questions base on good impurity
                 
