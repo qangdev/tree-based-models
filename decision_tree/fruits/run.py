@@ -2,31 +2,33 @@ import csv
 
 
 #########################################################################
-def top_questions(rows):
-    questions = []
-    avai_values = set_values(rows)
-    for feature in avai_values:
+def best_question(rows):
+    best_gain = 0.0
+    best_question = None
+    for feature in set_values(rows):
         col_idx, col_values = feature
         for col_val in col_values:
             question = Question(col_idx, col_val)
-            true_rows, false_rows = partition(rows, question)
+            left_branch, right_branch = partition(rows, question)
 
-            if not true_rows or not false_rows:
+            if not left_branch or not right_branch:
                 continue
 
-            gain = gini_info_gain(true_rows, false_rows)
-            questions.append([question, gain])
-    return questions
+            gain = gini_info_gain(rows, left_branch, right_branch)
+            if gain >= best_gain:
+                best_gain = gain
+                best_question = question
+    return best_gain, best_question
 
 
 def partition(rows, question):
-    true_rows, false_rows = [], []
+    left_branch, right_branch = [], []
     for row in rows:
         if question.match(row):
-            true_rows.append(row)
+            left_branch.append(row)
         else:
-            false_rows.append(row)
-    return true_rows, false_rows
+            right_branch.append(row)
+    return left_branch, right_branch
 
 
 def set_values(rows):
@@ -96,7 +98,8 @@ if __name__ == "__main__":
     with open("decision_tree/fruits/data/fruits.csv", "r") as src:
         dataset = csv.reader(src, delimiter=",")
         dataset = list(dataset)[1:]
-        print(top_questions(dataset))
+        info_gain, best_question = best_question(dataset)
+        print(info_gain, best_question)
         # Need to find good questions base on good impurity
                 
         # Partition rows
