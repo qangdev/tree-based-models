@@ -1,8 +1,69 @@
 import csv
-
+from dataclasses import dataclass
 
 #########################################################################
-def best_question(rows):
+class Question:
+    def __init__(self, column, value):
+        self.column = column
+        self.value = value
+
+    def match(self, row):
+        try:
+            self.value = float(self.value)
+            return float(row[self.column]) >= self.value
+        except ValueError:
+            return row[self.column].lower() == self.value.lower()
+        return False
+
+    def __repr__(self):
+        try:
+            self.value = float(self.value)
+            return "%s >= %s " % (self.column, self.value)
+        except ValueError:
+            return "%s == %s " % (self.column, self.value)
+
+
+@dataclass
+class Node:
+    question: Question
+    left_branch: object
+    right_branch: object
+
+
+@dataclass
+class Leaf:
+    predictions: object
+
+    def predict(self):
+        print(self.predictions)
+        best_label = max(self.predictions, key=self.predictions.get)
+        return best_label, self.predictions[best_label]
+#########################################################################
+
+def classify(row, node):
+    if isinstance(node, Leaf):
+        return node.predict()
+
+    if node.question.match(row):
+        return classify(row, node.left_branch)
+    else:
+        return classify(row, node.right_branch)
+
+
+def build_tree(rows):
+    gain, question = best_split(rows)
+    if gain == 0:
+        return Leaf(predictions=label_percentage(rows))
+    
+    left_branch, right_branch = partition(rows, question)
+
+    left_branch = build_tree(left_branch)
+    right_branch = build_tree(right_branch)
+
+    return Node(question, left_branch, right_branch)
+
+
+def best_split(rows):
     best_gain = 0.0
     best_question = None
     for feature in set_values(rows):
@@ -72,36 +133,43 @@ def label_count(rows):
     return count
 
 
-class Question:
-    def __init__(self, column, value):
-        self.column = column
-        self.value = value
+def label_percentage(rows):
+    perc_label = {}
+    count_label = label_count(rows)
+    for label, count in count_label.items():
+        perc_label[label] = count/len(count_label.keys())
+    return perc_label
 
-    def match(self, row):
-        try:
-            self.value = float(self.value)
-            return float(row[self.column]) >= self.value
-        except ValueError:
-            return row[self.column].lower() == self.value.lower()    
-        return False
 
-    def __repr__(self):
-        try:
-            self.value = float(self.value)
-            return "%s >= %s " % (self.column, self.value)
-        except ValueError:
-            return "%s == %s " % (self.column, self.value)
 
+
+def print_tree(node, spacing=""):
+    """World's most elegant tree printing function."""
+
+    # Base case: we've reached a leaf
+    if isinstance(node, Leaf):
+        print (spacing + "Predict", node.predictions)
+        return
+
+    # Print the question at this node
+    print (spacing + str(node.question))
+
+    # Call this function recursively on the true branch
+    print (spacing + '--> True:')
+    print_tree(node.left_branch, spacing + "  ")
+
+    # Call this function recursively on the false branch
+    print (spacing + '--> False:')
+    print_tree(node.right_branch, spacing + "  ")
 
 
 if __name__ == "__main__":
     with open("decision_tree/fruits/data/fruits.csv", "r") as src:
         dataset = csv.reader(src, delimiter=",")
         dataset = list(dataset)[1:]
-        info_gain, best_question = best_question(dataset)
-        print(info_gain, best_question)
-        # Need to find good questions base on good impurity
-                
-        # Partition rows
 
-        # Calculate impurity
+        detree = build_tree(dataset)
+        result = classify(['Yellow', 3, 'Lemon'], detree)
+        print(result)
+        # 'Apple': 0.5, 'Lemon': 0.5} -> A tie!  Which one should pick
+        # Which columns should be added to make more accuracy
