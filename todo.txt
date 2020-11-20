@@ -1,0 +1,6 @@
+[] Apply Classification-Detree to Car Evaluation
+  [] Return percentages is more than 100%
+[] Do cross-over and confusion matrix
+[] Entropy calculation
+[] Classification Decision Tree using Entropy Information
+[] Regression Decision Tree
