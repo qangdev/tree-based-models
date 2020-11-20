@@ -46,23 +46,20 @@ if __name__ == '__main__':
         if "v" in node:
             return node["v"]
         next_node = node["l"] if node["question"](val) else node["r"]
-        return predict(next_node,
-                       val)
+        return predict(next_node, val)
 
     tree = build_tree()
     with open("./data/tennis.csv", "r") as csv_file:
         data = csv.reader(csv_file, delimiter=",")
         data = [r for i, r in enumerate(data) if i != 0]  # remove header
+
         known_target = [TennisRecord(int(r[0]), r[1], r[2], r[3], r[4]) for i, r in enumerate(data)]
         predict_target = []
+
         for r in data:
             record = TennisRecord(int(r[0]), r[1], r[2], r[3])
             record.play = predict(tree, record)
             predict_target.append(record)
-
-        for i in zip(known_target, predict_target):
-            if i[0].play != i[1].play:
-                print(i)
 
         assert known_target == predict_target, "Ops, Something wrong"
     print("[D O N E]")
