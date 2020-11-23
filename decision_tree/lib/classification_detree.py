@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 #########################################################################
-@dataclass()
+@dataclass
 class Question:
 
     column: any
@@ -15,12 +15,18 @@ class Question:
         except Exception as e:
             raise e
 
-    def __repr__(self):
+    def print(self, headers=None):
         try:
             self.value = float(self.value)
-            return "%s >= %s " % (self.column, self.value)
+            if len(headers) >= self.column:
+                return "%s >= %s " % (headers[self.column], self.value)
+            else:
+                return "%s >= %s " % (self.column, self.value)
         except ValueError:
-            return "%s == %s " % (self.column, self.value)
+            if len(headers) >= self.column:
+                return "%s == %s " % (headers[self.column], self.value)
+            else:
+                return "%s == %s " % (self.column, self.value)
 
 
 @dataclass
@@ -32,9 +38,10 @@ class Node:
 
 @dataclass
 class Leaf:
-    predictions: object
+    predictions: dict
 
     def predict(self):
+        # return the label with highest percentage
         best_label = max(self.predictions, key=self.predictions.get)
         return best_label, self.predictions[best_label]
 #########################################################################
@@ -68,7 +75,7 @@ class ClassifyDeTree:
     def best_split(self, rows):
         best_gain = 0.0
         best_question = None
-        for feature in self.set_values(rows):
+        for feature in self.unique_values(rows):
             col_idx, col_values = feature
             for col_val in col_values:
                 question = Question(col_idx, col_val)
@@ -78,9 +85,11 @@ class ClassifyDeTree:
                     continue
 
                 gain = self.gini_info_gain(rows, left_branch, right_branch)
-                if gain > best_gain:
+
+                if gain > best_gain:  # This decide which question will be selected
                     best_gain = gain
                     best_question = question
+
         return best_gain, best_question
 
     def partition(self, rows, question):
@@ -92,7 +101,7 @@ class ClassifyDeTree:
                 right_branch.append(row)
         return left_branch, right_branch
 
-    def set_values(self, rows):
+    def unique_values(self, rows):
         u_values = []
         row = rows[0]
         for col in range(len(row) - 1):
@@ -109,7 +118,6 @@ class ClassifyDeTree:
 
         # Information Gain = Entropy(parent) - ( (Probability(left) * Entropy(Left)) + Probability(right) * Entropy(Right) )
         gain = self.gini_impurity(parent_branch) - ((prob_left * gini_left) + prob_right * gini_right)
-
         return round(gain, 3)
 
     def gini_impurity(self, rows):
@@ -135,3 +143,21 @@ class ClassifyDeTree:
         for label, count in count_label.items():
             perc_label[label] = count / sum([i for i in count_label.values()])
         return perc_label
+
+    def print_tree(self, node, spacing="", headers=None):
+        """World's most elegant tree printing function."""
+        # Base case: we've reached a leaf
+        if isinstance(node, Leaf):
+            print(spacing + "↓ Leaf", node.predictions)
+            return
+
+        # Print the question at this node
+        print(spacing + node.question.print(headers))
+
+        # Call this function recursively on the true branch
+        print(spacing + '→ Left:')
+        self.print_tree(node.left_branch, spacing + "  ", headers)
+
+        # Call this function recursively on the false branch
+        print(spacing + '→ Right:')
+        self.print_tree(node.right_branch, spacing + "  ", headers)

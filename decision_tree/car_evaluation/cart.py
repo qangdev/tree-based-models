@@ -1,4 +1,5 @@
 import csv
+import pandas as pd
 from dataclasses import dataclass
 from decision_tree.lib.classification_detree import ClassifyDeTree
 
@@ -23,35 +24,40 @@ class CarRecord:
             self.persons = 6
         else:
             self.persons = int(self.persons)
+        return self
 
     def to_list(self):
         return [self.buying, self.maint, self.doors, self.persons, self.lug_boot, self.safety, self.klass]
 
+
+
 if __name__ == '__main__':
     print("S T A R T E D")
-    dataset = []
-    with open("./data/car.data", "r+") as src:
-        dataset = list(csv.reader(src, delimiter=","))
-        rows = []
-        for item in dataset:
-            car_record = CarRecord(item[0],
-                                   item[1],
-                                   item[2],
-                                   item[3],
-                                   item[4],
-                                   item[5],
-                                   item[6])
-            car_record.clean_data()
-            rows.append(car_record.to_list())
+    headers = ["buying", "maint", "doors", "persons", "lug_boot", "safety"]
 
-    classifier = ClassifyDeTree()
-    tree = classifier.build_tree(rows)
-    # vhigh,vhigh,2,2,big,med,unacc
-    # vhigh,low,2,2,small,low,unacc
-    # low, med, 4, more, big, med, good
-    # low, med, 4, more, big, high, vgood
-    exam_car = CarRecord("low", "med", "4", "more", "big", "high")
-    exam_car.clean_data()
-    a_prediction = classifier.classify(exam_car.to_list(), tree)
-    print(a_prediction)
+    known_label = []
+    predicted_label = []
+    with open("./data/car.data", "r+") as src:
+        rows = []
+        dataset = list(csv.reader(src, delimiter=","))
+        for i in dataset:
+            known_label.append(str(i[6]))
+            rows.append(CarRecord(i[0], i[1], i[2], i[3], i[4], i[5], i[6]).clean_data().to_list())
+        classifier = ClassifyDeTree()
+        tree = classifier.build_tree(rows)
+        # classifier.print_tree(tree, headers=headers)
+
+        for i in dataset:
+            r = CarRecord(i[0], i[1], i[2], i[3], i[4], i[5]).clean_data().to_list()
+            label, perc = classifier.classify(r, tree)
+            predicted_label.append(label)
+
+    df_prediction = pd.Series(predicted_label, name="Predicted")
+    df_actual = pd.Series(known_label, name="Actual")
+    df_confusion = pd.crosstab(df_prediction, df_actual)
+
+    print("-" * 35)
+    print(df_confusion)
+    print("-"*35)
+
     print("D O N E")
