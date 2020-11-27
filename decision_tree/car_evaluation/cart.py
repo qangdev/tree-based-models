@@ -1,7 +1,8 @@
 import csv
 import pandas as pd
 from dataclasses import dataclass
-from decision_tree.lib.classification_detree import ClassifyDeTree
+from decision_tree.lib.utils import gini_gain, entropy_gain
+from decision_tree.lib.classification_detree import ClassifyDecisionTree
 
 
 @dataclass()
@@ -43,7 +44,9 @@ if __name__ == '__main__':
         for i in dataset:
             known_label.append(str(i[6]))
             rows.append(CarRecord(i[0], i[1], i[2], i[3], i[4], i[5], i[6]).clean_data().to_list())
-        classifier = ClassifyDeTree()
+
+        # make a classifier instance with information gain = gini | entropy
+        classifier = ClassifyDecisionTree(information_gain=entropy_gain)
         tree = classifier.build_tree(rows)
         # classifier.print_tree(tree, headers=headers)
 

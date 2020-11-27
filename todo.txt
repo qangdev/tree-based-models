@@ -1,7 +1,7 @@
 [X] Apply Classification-Detree to Car Evaluation
   [X] Return percentages is more than 100%
-[] Print and Read Tree for better understanding
-[] Do cross-over and confusion matrix
-[] Entropy calculation
-[] Classification Decision Tree using Entropy Information
+[X] Print and Read Tree for better understanding
+[X] Do cross-over and confusion matrix
+[X] Entropy calculation
+[X] Classification Decision Tree using Entropy Information
 [] Regression Decision Tree

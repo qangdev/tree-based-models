@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decision_tree.lib.utils import label_count
 #########################################################################
 @dataclass
 class Question:
@@ -46,10 +47,10 @@ class Leaf:
         return best_label, self.predictions[best_label]
 #########################################################################
 
-class ClassifyDeTree:
+class ClassifyDecisionTree:
 
-    def __init__(self):
-        pass
+    def __init__(self, information_gain: any):
+        self.information_gain = information_gain
 
     def classify(self, row, node):
         if isinstance(node, Leaf):
@@ -84,9 +85,9 @@ class ClassifyDeTree:
                 if not left_branch or not right_branch:
                     continue
 
-                gain = self.gini_info_gain(rows, left_branch, right_branch)
+                gain = self.information_gain(rows, left_branch, right_branch)
 
-                if gain > best_gain:  # This decide which question will be selected
+                if gain > best_gain:  # This decides which question will be selected
                     best_gain = gain
                     best_question = question
 
@@ -109,37 +110,10 @@ class ClassifyDeTree:
             u_values.append(values)
         return list(zip(range(len(rows)), u_values))
 
-    def gini_info_gain(self, parent_branch, left_branch, right_branch):
-        prob_left = len(left_branch) / (len(left_branch) + len(right_branch))
-        prob_right = len(right_branch) / (len(left_branch) + len(right_branch))
-
-        gini_left = self.gini_impurity(left_branch)
-        gini_right = self.gini_impurity(right_branch)
-
-        # Information Gain = Entropy(parent) - ( (Probability(left) * Entropy(Left)) + Probability(right) * Entropy(Right) )
-        gain = self.gini_impurity(parent_branch) - ((prob_left * gini_left) + prob_right * gini_right)
-        return round(gain, 3)
-
-    def gini_impurity(self, rows):
-        counts = self.label_count(rows)
-        impurity = 1
-        for label in counts:
-            prob_of_label = counts[label] / len(rows)
-            impurity -= prob_of_label ** 2
-        return round(impurity, 3)
-
-    def label_count(self, rows):
-        count = {}
-        for row in rows:
-            label = row[-1]
-            if label not in count:
-                count[label] = 0
-            count[label] += 1
-        return count
 
     def label_percentage(self, rows):
         perc_label = {}
-        count_label = self.label_count(rows)
+        count_label = label_count(rows)
         for label, count in count_label.items():
             perc_label[label] = count / sum([i for i in count_label.values()])
         return perc_label
