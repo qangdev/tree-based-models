@@ -3,7 +3,6 @@ from decision_tree.lib.utils import label_count
 #########################################################################
 @dataclass
 class Question:
-
     column: any
     value: any
 
@@ -42,7 +41,7 @@ class Leaf:
     predictions: dict
 
     def predict(self):
-        # return the label with highest percentage
+        # return the label with highest outcome percentage
         best_label = max(self.predictions, key=self.predictions.get)
         return best_label, self.predictions[best_label]
 #########################################################################
@@ -50,10 +49,10 @@ class Leaf:
 class ClassifyDecisionTree:
 
     def __init__(self, information_gain: any):
-        self.information_gain = information_gain
+        self.information_gain = information_gain  # Choices: Gini | Entropy
 
     def classify(self, row, node):
-        if isinstance(node, Leaf):
+        if isinstance(node, Leaf):  # Stop and predict outcome the recursion when a Leaf is found
             return node.predict()
 
         if node.question.match(row):
@@ -66,6 +65,7 @@ class ClassifyDecisionTree:
         if gain == 0:
             return Leaf(predictions=self.label_percentage(rows))
 
+        # left branch contains rows satisfy the question, and right branch is opposite
         left_branch, right_branch = self.partition(rows, question)
 
         left_branch = self.build_tree(left_branch)
@@ -76,15 +76,18 @@ class ClassifyDecisionTree:
     def best_split(self, rows):
         best_gain = 0.0
         best_question = None
-        for feature in self.unique_values(rows):
+        for feature in self.unique_values(rows):  # get unique values for each feature (column)
             col_idx, col_values = feature
             for col_val in col_values:
-                question = Question(col_idx, col_val)
+                question = Question(col_idx, col_val)  # make a question bases on the current value
+                # left branch contains rows satisfy the question, and right branch is opposite
                 left_branch, right_branch = self.partition(rows, question)
 
+                # if the question can't split data into left or right branches then skip
                 if not left_branch or not right_branch:
                     continue
 
+                # calculate information gain
                 gain = self.information_gain(rows, left_branch, right_branch)
 
                 if gain > best_gain:  # This decides which question will be selected
@@ -103,6 +106,7 @@ class ClassifyDecisionTree:
         return left_branch, right_branch
 
     def unique_values(self, rows):
+        # return a list of unique values for each columns
         u_values = []
         row = rows[0]
         for col in range(len(row) - 1):
@@ -112,6 +116,7 @@ class ClassifyDecisionTree:
 
 
     def label_percentage(self, rows):
+        # return the outcome percentage for each possible values
         perc_label = {}
         count_label = label_count(rows)
         for label, count in count_label.items():
@@ -119,8 +124,6 @@ class ClassifyDecisionTree:
         return perc_label
 
     def print_tree(self, node, spacing="", headers=None):
-        """World's most elegant tree printing function."""
-        # Base case: we've reached a leaf
         if isinstance(node, Leaf):
             print(spacing + "↓ Leaf", node.predictions)
             return
