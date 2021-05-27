@@ -4,7 +4,11 @@ import random
 import pandas as pd
 from dataclasses import dataclass
 from decision_tree.lib.utils import gini_gain, entropy_gain
-from decision_tree.lib.classification_detree import DecisionTree, MedianLeaf, Leaf
+from decision_tree.lib.classification_detree import (DecisionTree,
+                                                     RandomTree,
+                                                     RandomForest,
+                                                     MedianLeaf,
+                                                     Leaf)
 
 
 @dataclass()
@@ -47,18 +51,16 @@ if __name__ == '__main__':
             known_label.append(str(i[6]))
             rows.append(CarRecord(i[0], i[1], i[2], i[3], i[4], i[5], i[6]).clean_data().to_list())
 
-        # make a classifier instance with information gain = gini | entropy
-        dtree = DecisionTree(information_gain=entropy_gain,
-                             max_depth=6,
-                             leaf_style=Leaf)
+        rand_rung = RandomForest(information_gain=entropy_gain,
+                                 max_tree=50,
+                                 max_depth=6,
+                                 tree_style=RandomTree,
+                                 leaf_style=Leaf)
+        rand_rung.build_forest(rows)
 
-        tree = dtree.build_tree(rows)
-        dtree.print_tree(tree, headers=headers)
-
-        # for i in dataset:
         row = random.choice(dataset)
-        r = CarRecord(row[0], row[1], row[2], row[3], row[4], row[5]).clean_data().to_list()
-        label, perc = dtree.classify(r, tree)
+        piece = CarRecord(row[0], row[1], row[2], row[3], row[4], row[5]).clean_data().to_list()
+        label, _ = rand_rung.process(piece)
         predicted_label.append(label)
 
     df_prediction = pd.Series(predicted_label, name="Predicted")

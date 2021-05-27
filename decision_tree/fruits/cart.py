@@ -1,6 +1,6 @@
 import csv
 from decision_tree.lib.utils import gini_gain
-from decision_tree.lib.classification_detree import ClassifyDecisionTree
+from decision_tree.lib.classification_detree import DecisionTree
 
 
 if __name__ == "__main__":
@@ -9,7 +9,7 @@ if __name__ == "__main__":
         dataset = csv.reader(src, delimiter=",")
         dataset = list(dataset)[1:]
 
-        classifier = ClassifyDecisionTree(information_gain=gini_gain)
+        classifier = DecisionTree(information_gain=gini_gain)
         detree = classifier.build_tree(dataset)
         result = classifier.classify(['Yellow', 3], detree)
         print(result)
